@@ -1,9 +1,11 @@
 ﻿using System;
+using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DiscordBot
@@ -12,6 +14,14 @@ namespace DiscordBot
     {
         static void Main(string[] args)
         {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+            var configuration = builder.Build();
+            var appSettings = new AppSettings();
+            configuration.GetSection("AppSettings").Bind(appSettings);
+
             var services = new ServiceCollection()
                 .AddSingleton(new DiscordSocketClient())
                 .AddSingleton(new CommandService())
@@ -19,7 +29,8 @@ namespace DiscordBot
 
             var bot = new Bot(services,
                 services.GetService<DiscordSocketClient>(),
-                services.GetService<CommandService>());
+                services.GetService<CommandService>(),
+                appSettings);
 
             bot.RunAsync().GetAwaiter().GetResult();
         }

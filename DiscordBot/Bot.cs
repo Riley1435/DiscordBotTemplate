@@ -14,26 +14,26 @@ namespace DiscordBot
         private readonly IServiceProvider _services;
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
+        private readonly AppSettings _settings;
 
         public Bot(IServiceProvider services,
             DiscordSocketClient client,
-            CommandService commands)
+            CommandService commands,
+            AppSettings appSettings)
         {
             _services = services;
             _client = client;
             _commands = commands;
+            _settings = appSettings;
         }
 
         public async Task RunAsync()
         {
-            // Discord Applcation Token
-            string token = "";
-
             _client.Log += _client_Log;
 
             await RegisterCommandsAsync();
 
-            await _client.LoginAsync(TokenType.Bot, token);
+            await _client.LoginAsync(TokenType.Bot, _settings.Token);
 
             await _client.StartAsync();
 
